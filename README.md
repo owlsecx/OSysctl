@@ -18,26 +18,20 @@
 
 ## 📌 Overview
 
-Offline Linux kernel sysctl hardening auditor (CIS / STIG / KSPP)
+
+OSysctl is an offline, strictly read-only Linux kernel sysctl hardening auditor that parses sysctl.conf and sysctl.d with full load-order emulation. It compares live /proc/sys values against persistent configuration to detect drift, applies 60+ hardening rules benchmarked against CIS, DISA STIG and KSPP, and maps duplicate/conflicting overrides with file:line provenance. It produces an A+ to F grade, a remediation drop-in generator, and TXT/MD/JSON/CSV/SARIF exports.
 
 ---
 
 ## ✨ Features
 
-- Tolerant sysctl.conf / sysctl.d parser — comments, '-' ignore-failure prefix, '/' or '.' key syntax, glob keys (net.ipv4.conf.*.rp_filter), bad lines recorded instead of crashing
-- systemd-sysctl / procps load-order emulation — /etc > /run > /usr/local/lib > /usr/lib > /lib, lexical drop-in ordering, /dev/null masking, symlink de-duplication, /etc/sysctl.conf last
-- Offline --root support for collected filesystem trees (forensic images, containers, golden images)
-- Live /proc/sys snapshot reader + `sysctl -a` dump import; live-vs-persistent drift detection
-- 60+ hardening rules — IPv4, IPv6, memory, ASLR, kernel pointer leaks, BPF, ptrace, userns, fs links, core dumps, TTY line disciplines, io_uring
-- Three baselines: CIS, DISA STIG, KSPP (+ strictest)
-- Duplicate / conflicting / weakening override map across every drop-in, with file:line provenance
-- Per-interface override semantics (AND / OR / MAX) for net.ipv4.conf.<iface>.* keys
-- Config file permission checks (owner / writable)
-- A+…F grade, per-category subscores, CWE + MITRE
-- Remediation drop-in generator with exact lines
-- Export TXT / MD / JSON / CSV / SARIF 2.1.0
-- Snapshot + regression diff, CI gates (--fail-on)
-- --demo self-test with synthetic sysctl.d tree
+
+- Tolerant sysctl.conf / sysctl.d parser (ignore-failure prefix, / or . key syntax, glob keys, bad-line capture)
+- systemd-sysctl / procps load-order emulation with drop-in precedence, /dev/null masking and symlink dedup
+- Live /proc/sys snapshot and sysctl -a import with live-vs-persistent drift detection
+- 60+ rules across IPv4/IPv6, memory, ASLR, BPF, ptrace, userns, fs links and core dumps
+- CIS, DISA STIG and KSPP baselines, with a duplicate/conflicting override map and file:line provenance
+- A+..F grade, remediation drop-in generator, snapshot/regression diff and TXT/MD/JSON/CSV/SARIF export
 
 ---
 
@@ -50,8 +44,13 @@ Offline Linux kernel sysctl hardening auditor (CIS / STIG / KSPP)
 
 ## 🚀 Usage
 
+
 ```bash
-./OSysctl
+./OSysctl --scan --baseline kspp --format sarif -o sysctl.sarif
+./OSysctl --live --diff --fix
+./OSysctl --root /mnt/image --fail-on high --matrix
+./OSysctl --demo
+./OSysctl --help
 ```
 
 ---
